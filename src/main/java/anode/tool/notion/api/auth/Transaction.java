@@ -1,23 +1,24 @@
 package anode.tool.notion.api.auth;
 
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.http.HttpRequest.BodyPublisher;
 
 public class Transaction {
-    //TODO : Refacto into Transaction builder
     
     private String url;
     private String method;
-    private java.net.http.HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.noBody();
+    private BodyPublisher body = HttpRequest.BodyPublishers.noBody();
 
-    public Transaction(String url, String method, String body){
+    public Transaction(String url, String method, BodyPublisher body){
         this.url=url;
         this.method=method;
         this.body=body;
     }
 
-    public Transaction(){}
+    public Transaction(){
+        // Empty constructor the Object is aim to be 
+        // instantiate by the Transaction Builder
+    }
 
     public void setUrl(String url){
         this.url=url;

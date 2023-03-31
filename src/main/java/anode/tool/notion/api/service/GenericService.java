@@ -8,14 +8,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import anode.tool.notion.api.auth.SessionManagerSingleton;
 import anode.tool.notion.api.auth.Transaction;
-import anode.tool.notion.api.model.Database;
+import anode.tool.notion.api.exception.SessionException;
 import anode.tool.notion.api.model.NotionObject;
 
 import java.util.UUID;
 
-abstract class  GenericService <T extends NotionObject> {
+import javax.management.RuntimeErrorException;
+
+public class  GenericService <T extends NotionObject> {
     
-    private GenericService(){}  
+    protected GenericService(Class<T> clazz) {
+        this.clazz = clazz;
+    }
+    private final Class<T> clazz;
 
 
     @SuppressWarnings("unchecked")
@@ -25,9 +30,9 @@ abstract class  GenericService <T extends NotionObject> {
         transcation.post();
         transcation.setBody("{\"page_size\":100}");
         ObjectMapper objectMapper = new ObjectMapper();
-        final Map<String, String> result = objectMapper.readValue(SessionManagerSingleton.getInstance().commit(),
-                Map.class);
-        return objectMapper.readValue(result.get("results"), List.class);
+        String res =SessionManagerSingleton.getInstance().commit();
+        final Map<String, Object> result = objectMapper.readValue(res,Map.class);
+        return (List) result.get("results");
     }
 
     /**
@@ -36,26 +41,34 @@ abstract class  GenericService <T extends NotionObject> {
      * @throws JsonProcessingException
      */
     @SuppressWarnings("unchecked")
-    public T getById(UUID id) throws JsonProcessingException {
-        SessionManagerSingleton.getInstance().newTransaction();
-        Transaction transcation = SessionManagerSingleton.getInstance().getTransaction();
-        transcation.setUrl(T.OBJECT_TYPE+"/"+id);
-        transcation.get();
-        ObjectMapper objectMapper = new ObjectMapper();
-        final Map<String, String> result = objectMapper.readValue(SessionManagerSingleton.getInstance().commit(),
-                Map.class);
-        return (T) result.get("results");
+    public T getById(UUID id) throws SessionException {
+        try {
+            SessionManagerSingleton.getInstance().newTransaction();
+            Transaction transcation = SessionManagerSingleton.getInstance().getTransaction();
+            transcation.setUrl(plural((String)clazz.getField("OBJECT_TYPE").get(null))+"/"+id);
+            transcation.get();
+            System.out.println(SessionManagerSingleton.getInstance().commit());
+            return new ObjectMapper().readValue(SessionManagerSingleton.getInstance().commit(),clazz);
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | JsonProcessingException e) {
+            throw new SessionException("Error during the quering", e);
+        }
+        
     }
 
 
     public T getByName(String name) throws JsonProcessingException {
         SessionManagerSingleton.getInstance().newTransaction();
         Transaction transcation = SessionManagerSingleton.getInstance().getTransaction();
-        transcation.setUrl(T.OBJECT_TYPE+"/"+id);
+        transcation.setUrl(plural(T.OBJECT_TYPE)+"/"+name);
         transcation.get();
         ObjectMapper objectMapper = new ObjectMapper();
         final Map<String, String> result = objectMapper.readValue(SessionManagerSingleton.getInstance().commit(),
                 Map.class);
-        return (T) result.get("results");
+        return  objectMapper.readValue(result.get("results"), clazz);
+    }
+
+
+    private String plural(String name){
+        return name+"s";
     }
 }

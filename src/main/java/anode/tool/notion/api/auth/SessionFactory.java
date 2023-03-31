@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import anode.tool.notion.api.exception.SessionExecption;
+import anode.tool.notion.api.exception.SessionException;
 
 public class SessionFactory {
 
@@ -17,7 +17,7 @@ public class SessionFactory {
             prop.load(input);
             return new Session(prop.getProperty("session.token"));
         } catch (IOException ex) {
-            throw new SessionExecption("Unable to implement methods", ex);
+            throw new SessionException("Unable to implement methods", ex);
         }
     }
 
@@ -27,7 +27,7 @@ public class SessionFactory {
             prop.load(input);
             return new Session(prop.getProperty("session.token"));
         } catch (IOException ex) {
-            throw new SessionExecption("Unable to implement methods", ex);
+            throw new SessionException("Unable to implement methods", ex);
         }
         
     }

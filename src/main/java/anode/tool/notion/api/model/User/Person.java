@@ -1,5 +1,12 @@
-package anode.tool.notion.api.model.User;
+package anode.tool.notion.api.model.user;
 
-public class Person implements NotionUser {
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@Getter
+@Setter
+public class Person extends NotionUser {
     
 }

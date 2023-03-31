@@ -1,8 +1,12 @@
 package anode.tool.notion.api.auth;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import anode.tool.notion.api.exception.SessionException;
 
 public class Session {
     //secret_CyVp2y5PO95Ly2IfTYElNGmSngIcQqgbHjr7U3ts2XZ
@@ -27,16 +31,24 @@ public class Session {
     }
 
     public String commit(){
+        try {
         HttpRequest request=HttpRequest.newBuilder()
         .uri(URI.create(this.baseURL + "/"+this.transaction.getUrl()))
         .header("accept", "application/json")
         .header("Notion-Version", this.version)
-        .header("Bearer", secret)
+        .header("Authorization", "Bearer "+secret)
         .header("content-type", "application/json")
-        .method(this.transaction.getMethod(), HttpRequest.BodyPublisher.noBody())
+        .method(this.transaction.getMethod(), HttpRequest.BodyPublishers.noBody())
         .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return response.body();
+        } catch (IOException e) {
+            throw  new SessionException("unable to commit change", e);
+        }
+        catch(InterruptedException e){
+            throw  new SessionException("The thread have been interrupted", e);
+        }
+       
     }
 
 }

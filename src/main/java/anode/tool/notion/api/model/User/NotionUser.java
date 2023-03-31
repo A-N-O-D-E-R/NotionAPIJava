@@ -1,12 +1,16 @@
-package anode.tool.notion.api.model.User;
+package anode.tool.notion.api.model.user;
 
-public interface NotionUser {
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+public class NotionUser {
     String userType;
+    @Override
+    public String toString() {
+        return "NotionUser [userType=" + userType + ", name=" + name + ", avatarUrl=" + avatarUrl + "]";
+    }
     String name;
     String avatarUrl;
 
-    /**
-     * 
-     */
-    public NotionUser();
+
 }
