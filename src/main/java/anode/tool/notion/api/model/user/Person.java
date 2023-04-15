@@ -7,6 +7,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Person extends NotionUser {
-    
+public class Person extends NotionUser {   
 }
