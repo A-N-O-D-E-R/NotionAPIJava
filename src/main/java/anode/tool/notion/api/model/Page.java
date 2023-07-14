@@ -5,10 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.ToString;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@ToString
 public class Page extends NotionObject {
     public static final String OBJECT_TYPE = "page";
-
     public Page() {
         super();
     }

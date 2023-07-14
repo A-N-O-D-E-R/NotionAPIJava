@@ -27,4 +27,8 @@ public class Database extends NotionObject {
                 + ", parent=" + super.getParent() + ", url="
                 + super.getUrl() + ", elements= " + elements + "]";
     }
+
+    public void add(Page page){
+        elements.add(page);
+    }
 }

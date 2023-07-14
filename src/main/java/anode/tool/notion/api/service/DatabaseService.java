@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -24,6 +26,7 @@ public class DatabaseService extends GenericService<Database> {
         super(Database.class);
     }
 
+    @SuppressWarnings("unchecked")
     public Database getById(UUID id) throws SessionException {
         Database db = super.getById(id);
         SessionManagerSingleton.getInstance().newTransaction();
@@ -36,12 +39,20 @@ public class DatabaseService extends GenericService<Database> {
         module.addDeserializer(NotionUser.class, new NotionUserDeserialiser());
         objectMapper.registerModule(module);
         try {
-            final Map<String, Object> result = objectMapper.readValue(SessionManagerSingleton.getInstance().commit(),
+            final Map<String, Object> result = objectMapper.readValue(
+                    SessionManagerSingleton.getInstance().commit(),
                     Map.class);
-            db.setElements((List<Page>) result.get("results"));
+            ((List<Map>) result.get("results"))
+                    .forEach(page -> {
+                        ObjectMapper submapper = new ObjectMapper();
+                        submapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+                        System.out.println(page);
+                        db.add(submapper.convertValue(page, Page.class));
+                    });
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         return db;
     }
+
 }

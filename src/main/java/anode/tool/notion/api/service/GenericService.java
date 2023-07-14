@@ -77,7 +77,7 @@ public class GenericService<T extends NotionObject> {
         return objectMapper.readValue(result.get("results"), clazz);
     }
 
-    private String plural(String name) {
+    private static String plural(String name) {
         return name + "s";
     }
 }
